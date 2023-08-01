@@ -2,7 +2,14 @@
 <html>
   <head>
     <title><%= productName %></title>
-
+    <script>
+      <% if(ctx.mode.ssr) { %> 
+        window.__ALGOLIA_STATE__ = {{ JSON.stringify(ALGOLIA_STATE) }};
+      <% } else { %>
+        window.__ALGOLIA_STATE__ = {};
+      <% } %>
+      document.currentScript.remove();
+    </script>
     <meta charset="utf-8">
     <meta name="description" content="<%= productDescription %>">
     <meta name="format-detection" content="telephone=no">
