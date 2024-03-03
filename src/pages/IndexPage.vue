@@ -281,13 +281,10 @@ export default {
 
 <script setup>
 
-import { onBeforeMount, provide } from 'vue';
+import { onBeforeMount } from 'vue';
 import { getCurrentInstance } from "vue";
-import { createWidgetMixin } from "vue-instantsearch/vue3/es";
 
-
-
-onBeforeMount((/* props, context */) => {
+onBeforeMount(() => {
   const { ctx } = getCurrentInstance();
   const app = ctx.$.appContext.app;
 
