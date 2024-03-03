@@ -8,6 +8,8 @@ import { history as historyRouter } from "instantsearch.js/es/lib/routers";
 import { createWidgetMixin } from "vue-instantsearch/vue3/es";
 
 export default boot(async ({ app, ssrContext }) => {
+  app.use(VueInstantSearch);
+
   const url = ssrContext ? ssrContext.url : window.location.href;
   const routing = {
     router: historyRouter({
@@ -30,11 +32,12 @@ export default boot(async ({ app, ssrContext }) => {
     })
   );
 
-  app.use(VueInstantSearch); // do I need this besides the app.mixin?
+  const instantsearch = serverRootMixin.value.data()["instantsearch"];
   app.provide("serverRootMixin", serverRootMixin);
+  app.provide("$_ais_ssrInstantSearchInstance", instantsearch);
+
   if (ssrContext !== null) {
     ssrContext.ALGOLIA_STATE = {};
-    ssrContext.serverRootMixin = serverRootMixin;
-    ssrContext.app = app;
+    ssrContext.$_ais_ssrInstantSearchInstance = instantsearch;
   }
 });
