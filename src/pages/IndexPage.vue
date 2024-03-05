@@ -49,16 +49,20 @@ import {
   AisHits,
   AisPagination,
 } from 'vue-instantsearch/vue3/es';
-
+import useCustomRouter from 'src/composables/useCustomRouter';
+import route from 'src/router/index.js';
+const vueRouter = route();
 
 const searchClient = algoliasearch(
   "latency",
   "6be0576ff61c053d5f9a3225e2a90f76"
 );
-
 const serverRootMixin = createServerRootMixin({
   searchClient,
   indexName: "instant_search",
+  route: {
+    router: useCustomRouter(vueRouter),
+  },
 });
 const instantsearch = serverRootMixin.data()["instantsearch"];
 
@@ -73,6 +77,7 @@ export default {
 </script>
 
 <script setup>
+
 
 provide("$_ais_ssrInstantSearchInstance", instantsearch);
 
