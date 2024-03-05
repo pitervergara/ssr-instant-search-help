@@ -37,9 +37,11 @@
 </template>
 
 <script>
-
+import useComponent from 'src/composables/useComponent';
+import { createServerRootMixin } from "vue-instantsearch/vue3/es";
+import algoliasearch from "algoliasearch/lite";
 import { renderToString } from 'vue/server-renderer';
-import { inject } from 'vue';
+import { onBeforeMount, provide } from 'vue';
 import {
   AisInstantSearchSsr,
   AisSearchBox,
@@ -49,12 +51,19 @@ import {
 } from 'vue-instantsearch/vue3/es';
 
 
-import useComponent from 'src/composables/useComponent';
+const searchClient = algoliasearch(
+  "latency",
+  "6be0576ff61c053d5f9a3225e2a90f76"
+);
+
+const serverRootMixin = createServerRootMixin({
+  searchClient,
+  indexName: "instant_search",
+});
+const instantsearch = serverRootMixin.data()["instantsearch"];
 
 export default {
-
   async preFetch({ ssrContext }) {
-    const instantsearch = ssrContext.$_ais_ssrInstantSearchInstance
     const component = useComponent(instantsearch);
     await instantsearch.findResultsState({ component, renderToString }).then((results) => {
       ssrContext.ALGOLIA_STATE = results;
@@ -65,17 +74,14 @@ export default {
 
 <script setup>
 
-import { onBeforeMount } from 'vue';
+provide("$_ais_ssrInstantSearchInstance", instantsearch);
 
 onBeforeMount(() => {
-
-  const instantsearch = inject('$_ais_ssrInstantSearchInstance')
 
   if (typeof window === 'object' && window.__ALGOLIA_STATE__) {
     instantsearch.hydrate(window.__ALGOLIA_STATE__);
     delete window.__ALGOLIA_STATE__;
   }
-
 })
 </script>
 
