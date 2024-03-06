@@ -42,7 +42,7 @@ import useComponent from 'src/composables/useComponent';
 import { createServerRootMixin } from "vue-instantsearch/vue3/es";
 import algoliasearch from "algoliasearch/lite";
 import { renderToString } from 'vue/server-renderer';
-import { getCurrentInstance, inject, onBeforeMount, provide } from 'vue';
+import { onBeforeMount, provide } from 'vue';
 import {
   AisInstantSearchSsr,
   AisSearchBox,
@@ -51,10 +51,12 @@ import {
   AisHits,
   AisPagination,
 } from 'vue-instantsearch/vue3/es';
+import useServerRootMixin from 'src/composables/userServerRootMixin';
 import useCustomRouter from 'src/composables/useCustomRouter';
-import { useRouter } from 'vue-router';
 import useVirtualWidgets from 'src/composables/useVirtualWidgets';
+import { useRouter } from 'vue-router';
 
+const indexName = "instant_search";
 
 const searchClient = algoliasearch(
   "latency",
@@ -64,19 +66,20 @@ const searchClient = algoliasearch(
 export default {
   async preFetch({ ssrContext }) {
     const vueRouter = ssrContext.router;
-    const serverRootMixin = createServerRootMixin({
-      searchClient,
-      indexName: "instant_search",
-      routing: useCustomRouter(vueRouter),
-    });
-    let instantsearch = serverRootMixin.data()["instantsearch"];
-    const component = useComponent(instantsearch);
+    const app = ssrContext.app;
 
+    let instantsearch = useServerRootMixin({
+      searchClient,
+      indexName,
+      vueRouter,
+    });
+
+    // adds virtual widgets to the instantsearch instance, allowing SSR apply URL filters
     instantsearch = useVirtualWidgets(instantsearch);
 
-    const app = ssrContext.app;
     app.provide('$_ais_ssrInstantSearchInstance', instantsearch);
 
+    const component = useComponent(instantsearch);
     await instantsearch.findResultsState({ component, renderToString }).then((results) => {
       ssrContext.ALGOLIA_STATE = results;
     });
@@ -91,14 +94,14 @@ export default {
 onBeforeMount(() => {
 
   const vueRouter = useRouter();
-
-  const serverRootMixin = createServerRootMixin({
+  let instantsearch = useServerRootMixin({
     searchClient,
-    indexName: "instant_search",
-    routing: useCustomRouter(vueRouter),
+    indexName,
+    vueRouter,
   });
-  const instantsearch = serverRootMixin.data()["instantsearch"];
+
   provide('$_ais_ssrInstantSearchInstance', instantsearch);
+
   if (typeof window === 'object' && window.__ALGOLIA_STATE__) {
     instantsearch.hydrate(window.__ALGOLIA_STATE__);
     delete window.__ALGOLIA_STATE__;
