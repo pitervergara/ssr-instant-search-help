@@ -39,10 +39,14 @@
 
 <script>
 import useComponent from 'src/composables/useComponent';
-import { createServerRootMixin } from "vue-instantsearch/vue3/es";
-import algoliasearch from "algoliasearch/lite";
-import { renderToString } from 'vue/server-renderer';
+import useServerRootMixin from 'src/composables/userServerRootMixin';
+import useVirtualWidgets from 'src/composables/useVirtualWidgets';
+
 import { onBeforeMount, provide } from 'vue';
+import { useRouter } from 'vue-router';
+import { renderToString } from 'vue/server-renderer';
+
+import algoliasearch from "algoliasearch/lite";
 import {
   AisInstantSearchSsr,
   AisSearchBox,
@@ -51,19 +55,19 @@ import {
   AisHits,
   AisPagination,
 } from 'vue-instantsearch/vue3/es';
-import useServerRootMixin from 'src/composables/userServerRootMixin';
-import useCustomRouter from 'src/composables/useCustomRouter';
-import useVirtualWidgets from 'src/composables/useVirtualWidgets';
-import { useRouter } from 'vue-router';
+
+
 
 const indexName = "instant_search";
-
 const searchClient = algoliasearch(
   "latency",
   "6be0576ff61c053d5f9a3225e2a90f76"
 );
 
+
 export default {
+  // Server Side Rendering - This runs on the server, in node.js context
+
   async preFetch({ ssrContext }) {
     const vueRouter = ssrContext.router;
     const app = ssrContext.app;
@@ -83,13 +87,11 @@ export default {
     await instantsearch.findResultsState({ component, renderToString }).then((results) => {
       ssrContext.ALGOLIA_STATE = results;
     });
-
   }
 }
 </script>
 
 <script setup>
-
 
 onBeforeMount(() => {
 

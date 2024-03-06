@@ -2,7 +2,6 @@
 const useCustomRouter = function (vueRouter) {
   return {
     router: {
-      cleanUrlOnDispose: false,
       read() {
         return vueRouter.currentRoute.value.query;
       },
