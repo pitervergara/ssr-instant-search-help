@@ -1,7 +1,5 @@
-import qs from "qs";
 // https://www.algolia.com/doc/guides/building-search-ui/going-further/routing-urls/vue/#combining-with-nuxtjs
 const useCustomRouter = function (vueRouter) {
-  let pushed = 0;
   return {
     router: {
       cleanUrlOnDispose: false,
@@ -11,16 +9,8 @@ const useCustomRouter = function (vueRouter) {
       write(routeState) {
         // Only push a new entry if the URL changed (avoid duplicated entries in the history)
         if (this.createURL(routeState) === this.createURL(this.read())) {
-          console.log("skip");
           return;
         }
-        console.log("read", this.read());
-        console.log("routestate", routeState);
-        console.log(
-          this.createURL(routeState),
-          "!==",
-          this.createURL(this.read())
-        );
 
         vueRouter.push({
           query: routeState,
@@ -59,7 +49,6 @@ const useCustomRouter = function (vueRouter) {
     stateMapping: {
       stateToRoute(uiState) {
         const indexUiState = uiState["instant_search"] || {};
-
         return {
           query: indexUiState.query,
           page: indexUiState.page,
