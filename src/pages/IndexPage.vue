@@ -82,12 +82,14 @@ export default {
 
   async preFetch({ ssrContext }) {
     const vueRouter = ssrContext.router;
+    const app = ssrContext.app;
 
     let instantsearch = useServerRoot(searchClient, indexName, vueRouter);
     instantsearch = useVirtualWidgets(instantsearch);
 
     app.provide('$_ais_ssrInstantSearchInstance', instantsearch);
 
+    const component = useComponent(instantsearch);
     await instantsearch.findResultsState({ component, renderToString }).then((results) => {
       ssrContext.ALGOLIA_STATE = results;
     });
