@@ -16,14 +16,28 @@
             </div>
             <ais-hits>
               <template v-slot:item="{ item }">
-                <article>
-                  <h1 class="text-h4">
-                    <ais-highlight :hit="item" attribute="name" />
-                  </h1>
-                  <p>
-                    <ais-highlight :hit="item" attribute="description" />
-                  </p>
-                </article>
+
+
+                <div class="q-pa-md row items-start q-gutter-md">
+
+                  <q-card class="my-card text-white"
+                    style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)">
+                    <q-card-section>
+                      <div class="text-h6">
+                        <ais-highlight :hit="item" attribute="name" />
+                      </div>
+                      <div class="text-subtitle2">
+                        <ais-highlight :hit="item" attribute="name" />
+                      </div>
+                    </q-card-section>
+
+                    <q-card-section class="q-pt-none">
+                      <ais-highlight :hit="item" attribute="description" />
+                    </q-card-section>
+                  </q-card>
+
+                </div>
+
               </template>
             </ais-hits>
 
